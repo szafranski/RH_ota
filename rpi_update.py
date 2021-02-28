@@ -41,13 +41,13 @@ def get_rotorhazard_server_version(config):
                     # RELEASE_VERSION = "2.2.0 (dev 1)" # Public release version code
                     server_version_name = line.strip().split('=')[1].strip()
                     server_version_name = server_version_name.strip().split('#')[0].replace('"', '')
-                    server_version_name = f"{Bcolors.GREEN}{server_version_name}{Bcolors.ENDC} "
+                    colored_server_version_name = f"{Bcolors.GREEN}{server_version_name}{Bcolors.ENDC} "
                     server_installed_flag = True
                     break
     else:
         server_version_name = f'{Bcolors.YELLOW}{Bcolors.UNDERLINE}installation not found{Bcolors.ENDC}'
         server_installed_flag = False
-    return server_installed_flag, server_version_name
+    return server_installed_flag, server_version_name, colored_server_version_name
 
 
 def check_rotorhazard_config_status(config):
@@ -230,7 +230,7 @@ def main_window(config):
     while True:
         rh_config_text, rh_config_flag = check_rotorhazard_config_status(config)
         clear_the_screen()
-        server_installed_flag, server_version_name = get_rotorhazard_server_version(config)
+        server_installed_flag, server_version_name, colored_server_version_name = get_rotorhazard_server_version(config)
         ota_config = load_ota_sys_markers(config.user)
         sys_configured_flag = ota_config.sys_config_done
         sleep(0.1)
@@ -256,7 +256,7 @@ def main_window(config):
             
             """.format(bold=Bcolors.BOLD, underline=Bcolors.UNDERLINE, endc=Bcolors.ENDC, blue=Bcolors.BLUE,
                        yellow=Bcolors.YELLOW, red=Bcolors.RED, orange=Bcolors.ORANGE, server_version=config.rh_version,
-                       user=config.user, config_soft=rh_config_text, server=server_version_name)
+                       user=config.user, config_soft=rh_config_text, server=colored_server_version_name)
         print(welcome_text)
         if not rh_config_flag and server_installed_flag:
             configure = f"{Bcolors.GREEN}c - Configure RotorHazard server{Bcolors.ENDC}"

@@ -6,7 +6,7 @@ from conf_wizard_net import conf_wizard_net
 from conf_wizard_ota import conf_ota
 from modules import clear_the_screen, Bcolors, logo_top, triangle_image_show, ota_asci_image_show, load_config, \
     load_ota_sys_markers, write_ota_sys_markers, get_ota_version
-from rpi_update import main_window as rpi_update
+from rpi_update import main_window as rpi_update, get_rotorhazard_server_version as installed_rh_version_name
 from nodes_flash import flashing_menu
 from nodes_update_old import nodes_update as old_flash_gpio
 
@@ -175,6 +175,21 @@ def ota_update_available_check(config):
                 break
             elif selection == 's':
                 break
+
+
+def rh_possible_update_check(config):
+    latest_version_release_page = str(
+        os.popen("curl -s https://github.com/RotorHazard/RotorHazard/releases/latest").read())
+    newest_release_http_address = latest_version_release_page.split('"')[1]
+    newest_release_name = newest_release_http_address.split('/')[-1].strip()
+
+    installed_rh_release = installed_rh_version_name(config)[1]
+
+    if newest_release_name != installed_rh_release:
+        pending_update_prompt = f"{Bcolors.RED}(pending update){Bcolors.ENDC}"
+    else:
+        pending_update_prompt = ""
+    return pending_update_prompt
 
 
 def welcome_screen(config):
@@ -480,9 +495,9 @@ def main_menu(config):
 
                                 {rmf}MAIN MENU{endc}
 
-                           {blue}{bold}  
-                        1 - RotorHazard Manager
-
+                            {blue}{bold}  
+                        1 - RotorHazard Manager {pending_update_prompt}
+                            {blue}{bold}  
                         2 - Nodes flash and update {endc}{bold}
 
                         3 - Additional features{configured}
@@ -493,7 +508,7 @@ def main_menu(config):
 
                 """.format(bold=Bcolors.BOLD_S, underline=Bcolors.UNDERLINE, endc=Bcolors.ENDC, green=Bcolors.GREEN,
                            blue=Bcolors.BLUE, yellow=Bcolors.YELLOW_S, red=Bcolors.RED_S, configured=conf_color,
-                           rmf=Bcolors.RED_MENU_HEADER)
+                           rmf=Bcolors.RED_MENU_HEADER, pending_update_prompt=rh_possible_update_check(config))
         print(main_menu_content)
         selection = input()
         if selection == '1':
